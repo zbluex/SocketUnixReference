@@ -77,11 +77,14 @@ class IPCRef(object):
 		netinfo = netinfo[1].split('\n')
 		for l in netinfo:
 			e = l.split()
+			ll = e[0:8]
+			if "".join(e[8:]) != "":
+				ll.append("".join(e[8:]))
 			if e[4] != '*':
-				if not self.unixPathMap.has_key(e[4]):
-					self.unixPathMap[e[4]] = list()
-				self.unixPathMap[e[4]].append(e)
-			self.unixPearPortMap[e[5]] = e
+				if not self.unixPathMap.has_key(ll[4]):
+					self.unixPathMap[ll[4]] = list()
+				self.unixPathMap[ll[4]].append(ll)
+			self.unixPearPortMap[ll[5]] = ll
 
 	def calculate_unix_reference(self):
 		self.get_unix_info()
@@ -89,13 +92,17 @@ class IPCRef(object):
 			if self.unixPathMap.has_key(k):
 				for l in self.unixPathMap[k]:
 					if self.unixPearPortMap.has_key(l[7]) and len(self.unixPearPortMap[l[7]]) >= 9:
-						name = re.split('\(\(|\)\)', self.unixPearPortMap[l[7]][-1])
-						name = re.split('"', name[1])[1:]
-						key = re.split('=|,',name[1])[2] + "/" + name[0]
-						if self.unixListenMap[k][1].has_key(key):
-							self.unixListenMap[k][1][key] = self.unixListenMap[k][1][key] + 1
-						else:
-							self.unixListenMap[k][1][key] = 1
+						#format convert from ['users', 'xxxx'] to 'xxxx'
+						names = re.split(':',self.unixPearPortMap[l[7]][-1])[1]
+						#format convert form '((xxxx),(xxxx))' to 'xxxx),(xxxx'
+						names = re.split('\),\(',names[2:-2])
+						for name in names:
+							name = name.split(',')
+							key = name[1] + "/" + name[0].split("\"")[1]
+							if self.unixListenMap[k][1].has_key(key):
+								self.unixListenMap[k][1][key] = self.unixListenMap[k][1][key] + 1
+							else:
+								self.unixListenMap[k][1][key] = 1
 
 	def calculate_reference(self):
 		self.calculate_socket_reference()
@@ -138,7 +145,7 @@ if __name__ == "__main__":
 		if timeout > 0:
 			time.sleep(1)
 
-	print("Socket Reference:")
+	print("Local Socket Reference:")
 	for k,v in ipc_ref.tcpUdpListenMap.items():
 		print k,v
 
