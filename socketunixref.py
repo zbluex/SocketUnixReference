@@ -75,7 +75,6 @@ class IPCRef(object):
 		netinfo = commands.getstatusoutput(self.__unixInfoCmd)
 		logerror("Get unix information", netinfo[0])
 		netinfo = netinfo[1].split('\n')
-		unix_info_list = list()
 		for l in netinfo:
 			e = l.split()
 			if e[4] != '*':
@@ -89,9 +88,9 @@ class IPCRef(object):
 		for k in self.unixListenMap.keys():
 			if self.unixPathMap.has_key(k):
 				for l in self.unixPathMap[k]:
-					if self.unixPearPortMap.has_key(l[7]):
-						name = re.split('\(\(|\)\)', l[-1])[1]
-						name = re.split('"', name)[1:]
+					if self.unixPearPortMap.has_key(l[7]) and len(self.unixPearPortMap[l[7]]) >= 9:
+						name = re.split('\(\(|\)\)', self.unixPearPortMap[l[7]][-1])
+						name = re.split('"', name[1])[1:]
 						key = re.split('=|,',name[1])[2] + "/" + name[0]
 						if self.unixListenMap[k][1].has_key(key):
 							self.unixListenMap[k][1][key] = self.unixListenMap[k][1][key] + 1
