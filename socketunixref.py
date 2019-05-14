@@ -94,8 +94,10 @@ class IPCRef(object):
 					if self.unixPearPortMap.has_key(l[7]) and len(self.unixPearPortMap[l[7]]) >= 9:
 						#format convert from ['users', 'xxxx'] to 'xxxx'
 						names = re.split(':',self.unixPearPortMap[l[7]][-1])[1]
+						print names
 						#format convert form '((xxxx),(xxxx))' to 'xxxx),(xxxx'
 						names = re.split('\),\(',names[2:-2])
+						print names
 						for name in names:
 							name = name.split(',')
 							key = name[1] + "/" + name[0].split("\"")[1]
@@ -113,7 +115,7 @@ def get_parser():
 	# parse args
 	parser = argparse.ArgumentParser(
 		description="Socket and Unix Reference analyze tool;",
-		epilog="author: z00347042 zhuqi1@huawei.com",
+		epilog="author: zhuqi zbluex@gmail.com",
 		version="1.0.0"
 	)
 	parser.add_argument("-t", "--time", dest="time",
