@@ -77,10 +77,14 @@ class IPCRef(object):
 		logerror("Get unix information", netinfo[0])
 		netinfo = netinfo[1].split('\n')
 		for l in netinfo:
-			e = l.split()
-			ll = e[0:8]
-			if "".join(e[8:]) != "":
-				ll.append("".join(e[8:]))
+			# split everyline to ['xxxx', 'yyyy'] by "users:"
+			pidinfo = re.split("users:", l)
+			# split xxxx by space
+			ll = pidinfo[0].split()
+			# if exist yyy, then append it
+			if len(pidinfo) > 1:
+				ll.append("users:" + pidinfo[1].strip())
+			# cacluelate max len per line
 			if len(ll) > self.unixMaxlen:
 				self.unixMaxlen = len(ll)
 			if ll[-5] != '*':
