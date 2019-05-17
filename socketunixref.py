@@ -24,6 +24,7 @@ class IPCRef(object):
 	unixListenMap = dict()
 	unixPathMap = dict()
 	unixPearPortMap = dict()
+        unixMaxlen = 0
 
 	def calculate_socket_reference(self):
 		self.get_tcpudp_info()
@@ -80,24 +81,24 @@ class IPCRef(object):
 			ll = e[0:8]
 			if "".join(e[8:]) != "":
 				ll.append("".join(e[8:]))
-			if e[4] != '*':
-				if not self.unixPathMap.has_key(ll[4]):
-					self.unixPathMap[ll[4]] = list()
-				self.unixPathMap[ll[4]].append(ll)
-			self.unixPearPortMap[ll[5]] = ll
+			if len(ll) > self.unixMaxlen:
+				self.unixMaxlen = len(ll)
+			if ll[-5] != '*':
+				if not self.unixPathMap.has_key(ll[-5]):
+					self.unixPathMap[ll[-5]] = list()
+				self.unixPathMap[ll[-5]].append(ll)
+			self.unixPearPortMap[ll[-4]] = ll
 
 	def calculate_unix_reference(self):
 		self.get_unix_info()
 		for k in self.unixListenMap.keys():
 			if self.unixPathMap.has_key(k):
 				for l in self.unixPathMap[k]:
-					if self.unixPearPortMap.has_key(l[7]) and len(self.unixPearPortMap[l[7]]) >= 9:
+					if self.unixPearPortMap.has_key(l[-2]) and len(self.unixPearPortMap[l[-2]]) >= self.unixMaxlen - 1:
 						#format convert from ['users', 'xxxx'] to 'xxxx'
-						names = re.split(':',self.unixPearPortMap[l[7]][-1])[1]
-						print names
+						names = re.split(':',self.unixPearPortMap[l[-2]][-1])[1]
 						#format convert form '((xxxx),(xxxx))' to 'xxxx),(xxxx'
 						names = re.split('\),\(',names[2:-2])
-						print names
 						for name in names:
 							name = name.split(',')
 							key = name[1] + "/" + name[0].split("\"")[1]
